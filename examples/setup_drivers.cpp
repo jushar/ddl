@@ -1,4 +1,5 @@
 #include <iostream>
+#include <string_view>
 
 #include "ddl/drivers/LPS22DF.hpp"
 #include "ddl/drivers/ST/ST_I2C.hpp"
@@ -12,38 +13,38 @@ struct MyDevice {
 
 // DEVICE DEFINITION FOR TARGET DEVICE START
 struct MyTargetDevice : MyDevice {
-  static ddl::LPS22DF& lps22Df() {
+  ddl::LPS22DF& pressure() override {
     static ddl::ST_I2C pressureI2c{ddl::I2CConfig{
         .address = 0x123,
     }};
     static ddl::LPS22DF lps22df{pressureI2c};
     return lps22df;
   }
-
-  ddl::Sensor& pressure() override { return lps22Df(); }
 };
 // DEVICE DEFINITION FOR TARGET DEVICE END
 
 // DEVICE DEFINITION FOR SIM DEVICE START
 struct MySimulatedDevice : MyDevice {
-  static ddl::FakeSensor& fakePressureSensor() {
+  ddl::FakeSensor& pressure() override {
     static ddl::FakeSensor fakeSensor;
     return fakeSensor;
   }
-
-  ddl::Sensor& pressure() override { return fakePressureSensor(); }
 };
 // DEVICE DEFINITION FOR SIM DEVICE END
 
 // TODO: Generate these definitions based on a declarative yaml file (similar to a device tree)
 
+void printDeviceSensorValues(std::string_view name, MyDevice& device) {
+  std::cout << "[" << name << "] " << "Read pressure: "
+            << device.pressure().readValue(ddl::SensorChannel::Default)
+            << "\n";
+}
+
 int main() {
   MyTargetDevice targetDevice;
-  std::cout << "Read target pressure sensor: " << targetDevice.pressure().readValue(ddl::SensorChannel::Default)
-            << "\n";
+  printDeviceSensorValues("Target", targetDevice);
 
   MySimulatedDevice simDevice;
-  simDevice.fakePressureSensor().simulateValue(ddl::SensorChannel::Default, 10.0f);
-  std::cout << "Read simulated pressure sensor: " << simDevice.pressure().readValue(ddl::SensorChannel::Default)
-            << "\n";
+  simDevice.pressure().simulateValue(ddl::SensorChannel::Default, 10.0f);
+  printDeviceSensorValues("Sim", simDevice);
 }
