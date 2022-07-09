@@ -1,2 +1,5 @@
 add_executable(example_setup_drivers "setup_drivers.cpp")
-target_link_libraries(example_setup_drivers PRIVATE ddl ddl_fakes)
+target_link_libraries(example_setup_drivers ddl ddl_fakes)
+
+add_executable(example_testable_features "testable_features.cpp")
+target_link_libraries(example_testable_features ddl ddl_fakes)
