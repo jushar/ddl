@@ -6,7 +6,7 @@
 
 namespace ddl {
 
-class FakeSensor : public Sensor {
+class FakeSensor final : public Sensor {
  public:
   float readValue(SensorChannel channel) override;
 

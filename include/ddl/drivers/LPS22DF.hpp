@@ -5,7 +5,7 @@
 
 namespace ddl {
 
-class LPS22DF : public Sensor {
+class LPS22DF final : public Sensor {
  public:
   explicit LPS22DF(I2C& i2c);
 
